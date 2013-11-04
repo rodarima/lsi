@@ -387,7 +387,7 @@ Protegerse de ataques ARP-spoofing:
 	arp -s 10.10.102.3 00:90:fb:22:ff:5f
 	arp -s 10.10.102.5 00:90:fb:22:ff:5f
 
-Para conectarme a mi máquina si sufre ARP-spoofing:
+Para conectarme a mi máquina si sufro ARP-spoofing:
 
 	arp -s 10.10.102.185 00:50:56:91:52:3e
 
@@ -437,5 +437,24 @@ Port scanning:
 
 OS fingerprinting:
 
-	
+	# nmap -O -sV 10.10.150.0/24
+
+Apartado n:
+-----------
+
+Para obtener el listado de las máquinas, usaré un script:
+
+	#!/bin/bash
+
+	for i in {0..255}; do
+		printf "2002:0a0a:66%02x::1\n" $i
+	done
+
+Que imprime cada ip en una linea, ya que nmap no trae implementado rangos ipv6. Para leerlo con nmap: `$ nmap [...] -6 -iL lista`
+
+	# nmap -sS -6 -iL lista
+
+Apartado o:
+-----------
+
 

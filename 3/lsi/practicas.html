@@ -399,6 +399,83 @@ rtt min/avg/max/mdev = 0.337/0.356/0.382/0.028 ms
 <hr />
 
 <h1>Práctica 2</h1>
+
+<p>Protegerse de ataques ARP-spoofing:</p>
+
+<pre><code>arp -s 10.10.102.3 00:90:fb:22:ff:5f
+arp -s 10.10.102.5 00:90:fb:22:ff:5f
+</code></pre>
+
+<p>Para conectarme a mi máquina si sufro ARP-spoofing:</p>
+
+<pre><code>arp -s 10.10.102.185 00:50:56:91:52:3e
+</code></pre>
+
+<h2>Host discovery con nmap.</h2>
+
+<pre><code>FLAGS: { s = sigiloso, r = root }
+
+-sL  s  sólo resolver ips
+-sP     sólo host discovery
+-PS     SYN del sistema + lista de puertos
+-PA  r  envía ACK y necesita privilegios + lista
+-PU     ping UDP a puerto no usado + lista
+-PE     ping echo
+-PP     ping timestamp
+-PM     ping de consulta de máscara de subred
+-PR  r  ping ARP (sólo red local) necesita privilegios
+-n   s  no realizar resolución DNS
+-R   s  si realizar resolución DNS
+opciones:
+-PN  s  trata a todos los host como activos
+</code></pre>
+
+<h2>Port scanning</h2>
+
+<pre><code>FLAGS: { i = intrusivo, r = root }
+-sS  r  escaneo SYN
+-sT  i  escaneo SYN con el sistema
+-sU     escaneo UDP
+-sV  i  escaneo de versión
+-sF  i  escaneo de TCP FIN
+-sN  i  escaneo sin flags TCP
+-sX  i  escaneo con los flags FIN PSH y URG
+-sA     escaneo con ACK
+-sI     escaneo por espera, requiere equipo zombie
+</code></pre>
+
+<h2>Apartado m:</h2>
+
+<p>Host discovery:</p>
+
+<pre><code>$ nmap -sP 10.10.150.0/24
+</code></pre>
+
+<p>Port scanning:</p>
+
+<pre><code># nmap -sS 10.10.150.0/24
+</code></pre>
+
+<p>OS fingerprinting:</p>
+
+<pre><code># nmap -O -sV 10.10.150.0/24
+</code></pre>
+
+<h2>Apartado n:</h2>
+
+<p>Para obtener el listado de las máquinas, usaré un script:</p>
+
+<pre><code>#!/bin/bash
+
+for i in {0..255}; do
+    printf "2002:0a0a:66%02x::1\n" $i
+done
+</code></pre>
+
+<p>Que imprime cada ip en una linea, ya que nmap no trae implementado rangos ipv6. Para leerlo con nmap: <code>$ nmap -6 -iL lista</code></p>
+
+<pre><code># nmap -sS -6 -iL lista
+</code></pre>
         </div>
     </body>
 </html>
