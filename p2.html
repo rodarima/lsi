@@ -57,18 +57,24 @@ opciones:
 
 <h2>Apartados</h2>
 
-<h3>a) Instale el ettercap y pruebe sus opciones básicas en línea de comando</h3>
+<h3>a)</h3>
+
+<p>Instale el ettercap y pruebe sus opciones básicas en línea de comando</p>
 
 <pre><code># ettercap -T -M ARP /192.168.1.37/ /192.168.1.1/ -i wlp1s8 -w cap-1.pcap
 </code></pre>
 
-<h3>b) Capture paquetería de una sesión no segura.</h3>
+<h3>b)</h3>
+
+<p>Capture paquetería de una sesión no segura.</p>
 
 <pre><code># ettercap -T -M ARP /192.168.1.37/ /192.168.1.1/ -i wlp1s8 -w cap-1.pcap
 $ wireshark cap-1.pcap
 </code></pre>
 
-<h3>c) Capture un paquete TCP e identifique los principales campos de cabecera.</h3>
+<h3>c)</h3>
+
+<p>Capture un paquete TCP e identifique los principales campos de cabecera.</p>
 
 <pre><code>No.     Time        Source                Destination           Protocol Length Info
      30 0.277700    74.125.168.166        192.168.1.39          HTTP     1506   Continuation or non-HTTP traffic
@@ -93,10 +99,12 @@ Transmission Control Protocol, Src Port: http (80), Dst Port: 37910 (37910), Seq
 Hypertext Transfer Protocol
 </code></pre>
 
-<h3>d) Capture un paquete IPv6 e identifique los principales campos de cabecera.</h3>
+<h3>d)</h3>
+
+<p>Capture un paquete IPv6 e identifique los principales campos de cabecera.</p>
 
 <pre><code>No.     Time        Source                Destination           Protocol Length Info
-     18 0.779357    2a01:c35d:79fb:a231:250:56ff:fe91:5232 ff02::fb              MDNS     123    Standard query 0x0000  PTR 67.102.10.10.in-addr.arpa, "QM" question PTR 62.102.10.10.in-addr.arpa, "QM" question PTR 63.102.10.10.in-addr.arpa, "QM" question
+18 0.779357    2a01:c35d:79fb:a231:250:56ff:fe91:5232 ff02::fb              MDNS     123    Standard query 0x0000  PTR 67.102.10.10.in-addr.arpa, "QM" question PTR 62.102.10.10.in-addr.arpa, "QM" question PTR 63.102.10.10.in-addr.arpa, "QM" question
 
 Frame 18: 123 bytes on wire (984 bits), 123 bytes captured (984 bits)
 Ethernet II, Src: Vmware_91:52:32 (00:50:56:91:52:32), Dst: IPv6mcast_00:00:00:fb (33:33:00:00:00:fb)
@@ -155,7 +163,85 @@ done
 
 <p>Mediante arpspoofing entre una máquina objetivo (víctima) y el router del laboratorio obtenga todas las URL HTTP visitadas por la víctima. Trate de visualizarlas directamente en su navegador.</p>
 
-<h2>Apartado m:</h2>
+<p>Poner en etter.conf:</p>
+
+<pre><code>[privs]
+ec_uid = 0
+ec_gid = 0
+...
+remote_browser = "firefox -new-tab http://%host%url"
+</code></pre>
+
+<p>Luego ejecutar:</p>
+
+<pre><code># firefox
+# ettercap -T -M arp:remote /192.168.1.1/ /192.168.1.37/ -i wlp1s8
+</code></pre>
+
+<h3>i)</h3>
+
+<p>Haga un MITM en IPv6 y visualice la paquetería.</p>
+
+<p>Para instalar parasite6:</p>
+
+<pre><code>http://www.aldeid.com/wiki/THC-IPv6-Attack-Toolkit#Installation
+</code></pre>
+
+<p>Ejecutar los comandos:</p>
+
+<pre><code>wget --no-check-certificate http://www.thc.org/releases/thc-ipv6-1.8.tar.gz
+tar xzvf thc-ipv6-1.8.tar.gz
+cd thc-ipv6-1.8/
+make
+sudo make install
+</code></pre>
+
+<p>Una vez instalado:</p>
+
+<pre><code># echo 1 &gt; /proc/sys/net/ipv6/conf/all/forwarding
+# parasite6 -l eth0
+</code></pre>
+
+<h3>j)</h3>
+
+<p>Utilizando un filtro ettercap modifique las imágenes de las páginas http visitadas por una determinada máquina del laboratorio.</p>
+
+<p>Creo el filtro:</p>
+
+<pre><code>if (ip.proto == TCP &amp;&amp; top.arc ==80){
+    replace("img src=", "img src\"http://www.diesl.es/WebRoot/StoreES2/Shops/eb0383/5114/DABA/05C5/5876/1B91/AC10/1416/11FA/tux.jpg\"");
+    replace("IMG SRC=", "img src=\"http://www.diesl.es/WebRoot/StoreES2/Shops/eb0383/5114/DABA/05C5/5876/1B91/AC10/1416/11FA/tux.jpg\"");
+    msg("Filter Ran. \n");
+}
+</code></pre>
+
+<p>Y luego lo compilo:</p>
+
+<pre><code>$ etterfilter filtro.filter -o filtro.ef
+</code></pre>
+
+<p>Luego lo ejecuto:</p>
+
+<pre><code># ettercap -T -M arp:remote /192.168.1.1/ /192.168.1.37/ -i wlp1s8 -F filtro.ef
+</code></pre>
+
+<h3>k)</h3>
+
+<p>Utilizando el ettercap-gtk trate de capturar el password de una sesión https.</p>
+
+<p>Activamos el script sslstrip, depues de haber descomentado las lineas en el fichero de configuracion.</p>
+
+<h3>l)</h3>
+
+<p>Pruebe alguna herramienta y técnica de detección del sniffing.</p>
+
+<pre><code>scan_poisoner
+find_ettercap
+</code></pre>
+
+<h3>m)</h3>
+
+<p>Pruebe distintas técnicas de host discovey, port scanning y OS fingerprinting sobre las máquinas del laboratorio de prácticas.</p>
 
 <p>Host discovery:</p>
 
@@ -172,7 +258,9 @@ done
 <pre><code># nmap -O -sV 10.10.150.0/24
 </code></pre>
 
-<h2>Apartado n:</h2>
+<h3>n)</h3>
+
+<p>Realice alguna de las pruebas de port scanning del apartado anterior sobre IPv6. ¿Coinciden los servicios prestados por un sistema con los de IPv4?.</p>
 
 <p>Para obtener el listado de las máquinas, usaré un script:</p>
 
@@ -188,7 +276,14 @@ done
 <pre><code># nmap -sS -6 -iL lista
 </code></pre>
 
-<h2>Apartado o:</h2>
+<p>Hay algunos servicios que no están en ipv6</p>
+
+<h3>o)</h3>
+
+<p>Para conocer las conexiones en tiempo real, podemos usar iftop:</p>
+
+<pre><code># iftop
+</code></pre>
         </div>
     </body>
 </html>
