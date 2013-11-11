@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="content-type">
+        <title>Seminario 1</title>
+        <link rel="stylesheet" href="s.css">
+    </head>
+    <body>
+        <div class="cuerpo">
+<h1>Seminario 1</h1>
+
+<p>a) ntp</p>
+
+<h1>Seminario 2</h1>
+
+<h2>a)</h2>
+
+<p>Para hacer un fingerprint a toda la subred:</p>
+
+<pre><code># nmap -sS -T5 10.10.150.185/24
+</code></pre>
+
+<p>Los paquetes los podemos capturar con tcpdump:</p>
+
+<pre><code># tcpdump -i eth1 -n
+</code></pre>
+
+<p>Nota: Si no ponemos -n intentará resolver los dominios de las ips.</p>
+
+<h2>b,c,d)</h2>
+
+<p>Para comprobar el sistema de alertas configuraremos el programa fail2ban, que detecta intrusiones, por ejemplo en ssh. Si un atacante falla un numero máximo de veces la contraseña, será bloqueado, y enviará un mail a donde se haya especificado.</p>
+
+<p>Para probar la contraseña podemos usar <code>medusa</code> o simplemente <code>ssh</code>:</p>
+
+<pre><code>$ ssh rodrigo@lsi
+</code></pre>
+
+<p>Para comprobar que hayamos recibido la notificación:</p>
+
+<pre><code>$ mail
+Mail version 8.1.2 01/15/2001.  Type ? for help.
+"/var/mail/rodrigo": 1 message 1 new
+&gt;N  1 fail2ban@debian    Mon Nov 04 21:58   97/8211  [Fail2Ban] ssh: banned 10.10.5.121
+</code></pre>
+        </div>
+    </body>
+</html>

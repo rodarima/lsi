@@ -1,0 +1,17 @@
+No.     Time        Source                Destination           Protocol Length Info
+     18 0.779357    2a01:c35d:79fb:a231:250:56ff:fe91:5232 ff02::fb              MDNS     123    Standard query 0x0000  PTR 67.102.10.10.in-addr.arpa, "QM" question PTR 62.102.10.10.in-addr.arpa, "QM" question PTR 63.102.10.10.in-addr.arpa, "QM" question
+
+Frame 18: 123 bytes on wire (984 bits), 123 bytes captured (984 bits)
+Ethernet II, Src: Vmware_91:52:32 (00:50:56:91:52:32), Dst: IPv6mcast_00:00:00:fb (33:33:00:00:00:fb)
+Internet Protocol Version 6, Src: 2a01:c35d:79fb:a231:250:56ff:fe91:5232 (2a01:c35d:79fb:a231:250:56ff:fe91:5232), Dst: ff02::fb (ff02::fb)
+    0110 .... = Version: 6
+    .... 0000 0000 .... .... .... .... .... = Traffic class: 0x00000000
+    .... .... .... 0000 0000 0000 0000 0000 = Flowlabel: 0x00000000
+    Payload length: 69
+    Next header: UDP (17)
+    Hop limit: 255
+    Source: 2a01:c35d:79fb:a231:250:56ff:fe91:5232 (2a01:c35d:79fb:a231:250:56ff:fe91:5232)
+    [Source SA MAC: Vmware_91:52:32 (00:50:56:91:52:32)]
+    Destination: ff02::fb (ff02::fb)
+User Datagram Protocol, Src Port: mdns (5353), Dst Port: mdns (5353)
+Domain Name System (query)

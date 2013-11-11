@@ -1,0 +1,25 @@
+.cuerpo
+{
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+pre code
+{
+	overflow: auto;
+	display: block;
+	padding: 3px 3px;
+}
+
+code
+{
+	font: 12px monospace;
+	border: 1px solid #ccc;
+	background-color: #f9f9f9;
+	padding: 0px 3px;
+}
+
+blockquote p
+{
+	font-style: italic;
+}
