@@ -284,6 +284,50 @@ done
 
 <pre><code># iftop
 </code></pre>
+
+<p>Para instalar un sistema de accounting, usar acct. Manual: http://www.gnu.org/software/acct/manual/html_mono/accounting.html</p>
+
+<h3>p)</h3>
+
+<p>Seleccione alguna máquina de laboratorio de cualquier compañero de clase como objetivo y, pensando en una DoS de tipo direct attack, haga las pruebas que estime oportunas. Repita la jugada pero pesando en una DoS de tipo reflective flooding attack. Trate de visualizar en todo momento las conexiones y, o, paquetería generada.</p>
+
+<p>Para el DOS directo:</p>
+
+<pre><code>hping3 10.10.150.150 --flood
+</code></pre>
+
+<p>También podríamos dejar a una máquina sin conectividad, asignando su ip del router a una mac inventada:</p>
+
+<pre><code># watch ./packme.sh
+</code></pre>
+
+<p>Para el reflective DOS, podríamos usar este ataque a DNS</p>
+
+<pre><code># ./dnsdrdos -f nameservers -s 10.10.102.150 -d google.com.
+</code></pre>
+
+<h3>q)</h3>
+
+<p>Considerando que todos los sistemas del laboratorio tiene autoconfiguración de la pila IPv6, ¿cómo podría tratar de tirar abajo todos los sistemas? Haga también pruebas de flooding en IPv6. ¿Cómo podríamos protegernos?.</p>
+
+<pre><code># alive6 eth1
+# parasite6 eth1 [mac-inventada]
+</code></pre>
+
+<p>Podríamos protegernos añadiendo las tablas arp estáticas (supuestamente)</p>
+
+<h3>r)</h3>
+
+<p>Ataque un servidor apache para provocarle un DoS. ¿Cómo podría proteger dicho servicio ante este tipo de ataque? ¿Y si se produce desde fuera de su segmento de red? ¿Cómo podría tratar de saltarse dicha protección?</p>
+
+<p>Para el ataque podríamos usar SYN al puerto 80:</p>
+
+<pre><code># hping3 10.10.150.150 --flood
+</code></pre>
+
+<p>Para protegernos, podríamos limitar las conexiones por ip de origen. O usa BSD.</p>
+
+<p>Para intentar saltarnos la limitación, con una BOTNET, o con ips aleatorias si estamos en la red.</p>
         </div>
     </body>
 </html>
