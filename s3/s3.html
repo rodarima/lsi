@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="content-type">
+        <title>Seminario 3</title>
+    </head>
+    <body>
+        <div class="cuerpo">
+<h1>Seminario 3</h1>
+
+<p>Configuración de bachuppc:</p>
+
+<pre><code>Usuario:    backuppc
+Contraseña:    5a0V27dH
+</code></pre>
+
+<p>Para cambiar el usuario:</p>
+
+<pre><code>htpasswd /etc/backuppc/htpasswd backuppc
+</code></pre>
+
+<p>BackupPc es una herramienta que permite hacer copias de respaldo. Dentro de los tipos de copias que soporta estan los modelos de respaldo completo (full backup), o un respaldo incremental (incremental backup).</p>
+
+<p>Las copias se pueden ejecutar empleando varios protocolos. En este caso emplearemos una simple copia con <code>tar</code> mediante ssh, y <code>rsync</code>.</p>
+
+<p>Antes de comenzar, cabe destacar que todas las operaciones se realizan bajo la sesión del usuario <code>backuppc</code>. Por ello debemos asegurarnos de que existe una conexión automática por ssh desde el host servidor, al cliente.</p>
+
+<p>Esto se puede lograr gracias a las claves de autenticidad de rsa, que permiten el acceso del usuario backuppc del servidor a la máquina del cliente.</p>
+
+<h2>Configurar las claves de backuppc</h2>
+
+<p>Por defecto el usuario <code>backuppc</code> tiene la carpeta personal en la ruta <code>/var/lib/backuppc/</code>, y no tiene ninguna clave ssh creada. Para crearlas accedemos como dicho usuario:</p>
+
+<pre><code># su backuppc
+$ cd
+$ pwd
+/var/lib/backuppc
+</code></pre>
+
+<p>Ahora creamos las claves, por ejemplo rsa:</p>
+
+<pre><code>$ ssh-keygen -t rsa
+
+Generating public/private rsa key pair.
+Enter file in which to save the key (/var/lib/backuppc/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /var/lib/backuppc/.ssh/id_rsa.
+Your public key has been saved in /var/lib/backuppc/.ssh/id_rsa.pub.
+The key fingerprint is:
+03:de:2d:27:9a:32:6e:c5:11:80:d2:11:94:a2:8a:c2 backuppc@debian
+The key's randomart image is:
++--[ RSA 2048]----+
+| o+=..           |
+|o +   .          |
+|.o    ..         |
+|.    ..o .       |
+|+    ...S o      |
+|+E    oo =       |
+|.   o.o          |
+|   ..o           |
+|   ..            |
++-----------------+
+</code></pre>
+
+<p>Una vez creadas, enviamos a la máquina que queramos respaldar, la llave pública. En este ejemplo usaremos la propia máquina, pero con otro usuario:</p>
+
+<pre><code>$ cat /var/lib/backuppc/.ssh/id_rsa.pub &gt;&gt; /home/rodrigo/.ssh/authorized_keys
+</code></pre>
+        </div>
+    </body>
+</html>

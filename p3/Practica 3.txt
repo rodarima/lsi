@@ -1,0 +1,52 @@
+a) Identifique y analice los principales parámetros de configuración que caracterizan el sistema de ficheros de su equipo (sistema de fichero, espacios, punto de montaje, tipo, swapping, etc.)
+
+	fdisk -l
+	chmod para los permisos
+	df -a para ver espacio libre del sistema, puntos de montaje etc
+	el fichero /proc/swap tambien tiene informacion interesante
+
+b) Dispone de dos discos duros sin particionar. Cree una única partición con el espacio total de cada disco.
+
+	fdisk -l (podemos ver datos de los discos duros)
+	fdisk /dev/sdb  (o sdb)
+	pulsar n para nueva
+	p para primaria
+	elegir numero de particion
+	aceptar todo
+	w para salir guardando
+
+	mkfs -t ext3 /dev/sdb1 (o sdc1) para darle formato
+
+c) “Monte” y “desmonte” algunas de las particiones creadas en nuevos directorios de su sistema.
+
+	creamos una carpeta en /mnt y montamos alli las nuevas particiones. supongamos que la carpeta es sda1
+	se montan con el comando mount /dev/sda1 /mnt/sda1
+
+d) Utilizando el comando dump y restore y las opciones adecuadas defina un esquema de backup de una partición o directorio de su sistema de ficheros y la correspondiente recuperación de un fichero determinado.
+	
+	Teniendo montadas las particiones anteriores, vamos a hacer un backup de una en otra
+	creamos archivos a lo loco en sdc1 y con dump -0u -f /mnt/sdc1/backup.txt /mnt/sdb1/ hacemos la copia de seguridad del disco sdb1 en el backup.txt del disco sdc1
+
+	borramos las cosas 
+	lanzamos restore -aif /mnt/sdc1/backup.txt
+	add pruebas (añades lo que quieres restaurar y su contenido) puedes hacer ls y cosas asi.
+	extract para sacar las cosas de dentro del directorio
+	sales con q y ya esta restaurado
+
+e) Modifique el crontab de su sistema para automatizar el proceso de backup. ¿En qué dispositivos podría almacenar el fichero de backup resultante y qué supone en cada caso?.
+
+	editar el cromtab con cromtab -e y añadirle la linea:
+	0 10 * * 2 dump -0u -f /mnt/sdc1/backup.txt /mnt/sdb1/
+	de esta forma se ejecutara el dump todos los martes a las 10 de la mañana
+	podriamos hacerlo en el otro dispositivo, es decir ya que estamos haciendo un backup de sdb1, utilizamos sdc1 para almacenar el fichero de backup.
+
+f) Utilizando el rsync sobre un túnel SSH sincronice dos directorios entre dos máquinas del laboratorio.
+
+	rsync -avz /mnt/sdb1/pruebas/ 10.10.102.171:/mnt/sdc1/
+
+	Con esto le enviamos el contenido de la carpeta pruebas a la carpeta sdc1 de la otra maquina
+
+g) “Exporte” un directorio y “móntelo” de forma remota sobre un túnel SSH.
+
+	sudo apt-get install sshfs
+	sshfs carpeta user@ip:dir
