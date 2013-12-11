@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="content-type">
+        <title></title>
+    </head>
+    <body>
+        <div class="cuerpo">
+<p>d. Para hacer un backup usar:</p>
+
+<pre><code>dump -0u -f &lt;file&gt; &lt;carpeta a respaldar&gt;
+</code></pre>
+
+<p>Interactivo</p>
+
+<pre><code>restore aif &lt;bak&gt;
+</code></pre>
+
+<p>Para un FS:</p>
+
+<pre><code>restore rf &lt;bak&gt;
+</code></pre>
+
+<p>e. Cron:</p>
+
+<pre><code>0 0 * * 1 dump -0 -f &lt;file&gt; &lt;carpeta a respaldar&gt;
+</code></pre>
+
+<p>f. Rsync:</p>
+
+<pre><code>rsync -avz /de/ /a/
+</code></pre>
+
+<p>g. sshfs:</p>
+
+<pre><code>sshfs &lt;de&gt; &lt;a&gt;
+</code></pre>
+        </div>
+    </body>
+</html>
