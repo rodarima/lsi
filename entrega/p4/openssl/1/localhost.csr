@@ -1,0 +1,41 @@
+Certificate Request:
+    Data:
+        Version: 0 (0x0)
+        Subject: C=ES, ST=Espa\xC3\x83\xC2\xB1a, L=A Coru\xC3\x83\xC2\xB1a, O=Arch, CN=localhost/emailAddress=rodarima@gmail.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (1024 bit)
+                Modulus:
+                    00:b5:26:0a:df:3b:36:bc:3a:d5:a8:c3:d6:9b:1c:
+                    a2:2c:4a:30:00:1b:41:37:4b:4f:cf:a5:b6:97:bd:
+                    97:19:56:ea:64:a3:0e:eb:4c:5f:d6:5c:f3:6f:e9:
+                    7d:a2:9c:c0:88:18:00:7a:22:6a:0e:ca:36:87:01:
+                    60:b3:5d:05:6b:1b:31:d9:44:ae:db:f9:86:76:eb:
+                    a8:1d:36:57:9d:f5:ea:37:c0:c5:d2:b9:c5:3f:d8:
+                    00:94:a8:a4:4e:30:b5:be:0d:d3:a2:33:c0:1d:84:
+                    07:b0:41:c2:b2:6f:04:1b:1d:d3:21:cc:8f:98:b8:
+                    69:61:aa:e6:43:e0:60:84:65
+                Exponent: 65537 (0x10001)
+        Attributes:
+            a0:00
+    Signature Algorithm: sha1WithRSAEncryption
+         3a:bc:2d:05:f9:ae:9c:a2:d2:d1:e3:39:6b:ad:f2:19:70:aa:
+         08:42:9c:8b:26:00:fb:52:f7:0b:44:66:de:e1:6e:81:78:21:
+         f0:9e:6f:32:1c:78:7f:ce:80:74:ba:19:78:aa:42:3d:1f:03:
+         2e:2d:a6:56:af:6c:06:dc:e5:ff:8e:8b:07:4e:3a:74:e7:76:
+         34:50:f6:5a:12:d8:ed:76:8b:fa:b4:51:ea:c7:9d:1a:42:5c:
+         77:df:e4:6f:a3:22:4a:c4:95:06:0a:f9:4d:4b:ab:26:39:0e:
+         fe:1a:dc:d8:dd:53:b3:0f:0c:f7:f5:7f:af:7c:c7:6f:b9:10:
+         f3:6f
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBvTCCASYCAQAwfTELMAkGA1UEBhMCRVMxEjAQBgNVBAgMCUVzcGHDg8KxYTEU
+MBIGA1UEBwwLQSBDb3J1w4PCsWExDTALBgNVBAoMBEFyY2gxEjAQBgNVBAMMCWxv
+Y2FsaG9zdDEhMB8GCSqGSIb3DQEJARYScm9kYXJpbWFAZ21haWwuY29tMIGfMA0G
+CSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1JgrfOza8OtWow9abHKIsSjAAG0E3S0/P
+pbaXvZcZVupkow7rTF/WXPNv6X2inMCIGAB6ImoOyjaHAWCzXQVrGzHZRK7b+YZ2
+66gdNled9eo3wMXSucU/2ACUqKROMLW+DdOiM8AdhAewQcKybwQbHdMhzI+YuGlh
+quZD4GCEZQIDAQABoAAwDQYJKoZIhvcNAQEFBQADgYEAOrwtBfmunKLS0eM5a63y
+GXCqCEKciyYA+1L3C0Rm3uFugXgh8J5vMhx4f86AdLoZeKpCPR8DLi2mVq9sBtzl
+/46LB046dOd2NFD2WhLY7XaL+rRR6sedGkJcd9/kb6MiSsSVBgr5TUurJjkO/hrc
+2N1Tsw8M9/V/r3zHb7kQ828=
+-----END CERTIFICATE REQUEST-----

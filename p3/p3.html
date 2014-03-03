@@ -2,11 +2,86 @@
 <html>
     <head>
         <meta content="text/html; charset=utf-8" http-equiv="content-type">
-        <title></title>
+        <title>Práctica 3</title>
     </head>
     <body>
         <div class="cuerpo">
-<p>d. Para hacer un backup usar:</p>
+<h1>Práctica 3</h1>
+
+<p>a) Identifique y analice los principales parámetros de configuración que caracterizan el sistema de ficheros de su equipo (sistema de fichero, espacios, punto de montaje, tipo, swapping, etc.)</p>
+
+<p>Para mostrar los puntos de montaje actuales usar:</p>
+
+<pre><code>$ mount
+</code></pre>
+
+<p>Para ver la configuración editar <code>/etc/fstab</code></p>
+
+<p>b) Dispone de dos discos duros sin particionar. Cree una única partición con el espacio total de cada disco.</p>
+
+<p>Pongamos por ejemplo que tenemos un sistema linux instalado por defecto en sda, y los discos adicionales son sdb y sdc.</p>
+
+<p>En cada disco deberemos crear una tabla de particiones nueva, y luego crear una partición en cada disco. Esto lo podemos hacer con fdisk:</p>
+
+<pre><code># fdisk /dev/sdb
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First cylinder (1-4865, default 1): 1
+Last cylinder or +size or +sizeM or +sizeK (1-4865, default 4865): 4865
+
+Command (m for help): t
+Partition number (1-4): 1
+Hex code (type L to list codes): 83
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+</code></pre>
+
+<p>Para el segundo lo mismo, pero especificando el otro disco:</p>
+
+<pre><code># fdisk /dev/sdc
+...
+</code></pre>
+
+<p>Ahora tocaría el particionado:</p>
+
+<pre><code># mkfs -t ext4 /dev/sdb1
+# mkfs -t ext4 /dev/sdc1
+</code></pre>
+
+<p>Ahora con mount podríamos comprobar su correcto funcionamiento.</p>
+
+<p>c) "Monte" y "desmonte" algunas de las particiones creadas en nuevos directorios de su sistema.</p>
+
+<p>Siguiendo con el ejemplo anterior vamos a montar ambas particiones:</p>
+
+<p>Creamos unas carpetas de destino</p>
+
+<pre><code># mkdir -p /mnt/A /mnt/B
+</code></pre>
+
+<p>Y montamos ahí ambas particiones</p>
+
+<pre><code># mount /dev/sdb1 /mnt/A
+# mount /dev/sdc1 /mnt/B
+</code></pre>
+
+<p>Ahora podemos escribir en ambas. Para desmontarlas:</p>
+
+<pre><code># umount /dev/sdb1
+# umount /dev/sdc1
+</code></pre>
+
+<p>d) Utilizando el comando dump y restore y las opciones adecuadas defina un esquema de backup de una partición o directorio de su sistema de ficheros y la correspondiente recuperación de un fichero determinado.</p>
+
+<p>Para hacer un backup inicial usar:</p>
 
 <pre><code>dump -0u -f &lt;file&gt; &lt;carpeta a respaldar&gt;
 </code></pre>
@@ -21,19 +96,26 @@
 <pre><code>restore rf &lt;bak&gt;
 </code></pre>
 
-<p>e. Cron:</p>
+<p>e) Modifique el crontab de su sistema para automatizar el proceso de backup. ¿En qué dispositivos podría almacenar el fichero de backup resultante y qué supone en cada caso?.</p>
+
+<p>Una vez a la semana con cron:</p>
+
+<pre><code>$ crontab -e
+</code></pre>
+
+<p>Añadir:</p>
 
 <pre><code>0 0 * * 1 dump -0 -f &lt;file&gt; &lt;carpeta a respaldar&gt;
 </code></pre>
 
-<p>f. Rsync:</p>
+<p>f) Utilizando el rsync sobre un túnel SSH sincronice dos directorios entre dos máquinas del laboratorio.</p>
 
-<pre><code>rsync -avz /de/ /a/
+<pre><code>rsync -avz ~/test lsi@10.10.102.185:~/test
 </code></pre>
 
-<p>g. sshfs:</p>
+<p>g)  "Exporte" un directorio y "móntelo" de forma remota sobre un túnel SSH.</p>
 
-<pre><code>sshfs &lt;de&gt; &lt;a&gt;
+<pre><code>sshfs ~/test lsi@10.10.102.185:~/test
 </code></pre>
         </div>
     </body>

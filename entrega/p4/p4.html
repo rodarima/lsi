@@ -1,0 +1,760 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="content-type">
+        <title>Práctica 4 LSI</title>
+    </head>
+    <body>
+        <div class="cuerpo">
+<h1>Práctica 4 LSI</h1>
+
+<ol>
+<li>Tomando como base de trabajo el SSH pruebe sus diversas utilidades:</li>
+<li>a. Abra un shell remoto sobre SSH y analice el proceso que se realiza. Configure su fichero <code>ssh_known_hosts</code> para dar soporte a la clave pública del servidor.</li>
+</ol>
+
+<p>El fichero <code>ssh_known_hosts</code> permite configurar los hosts con confianza que se pueden conectar a la máquina. Para ver tu clave pública ejecuta:</p>
+
+<pre><code>$ ssh-keyscan localhost
+</code></pre>
+
+<p>Para ver el fingerprint se puede usar este comando:</p>
+
+<pre><code>$ ssh-keygen -l
+
+Enter file in which the key is (/home/rodrigo/.ssh/id_rsa): 
+2048 4d:4b:40:ae:1a:7e:48:ff:6b:d0:47:f5:9b:78:92:b5  rodrigo@hp (RSA)
+</code></pre>
+
+<p>Para configurar el fichero <code>ssh_known_hosts</code> global, editar el fichero:</p>
+
+<pre><code>/etc/ssh/ssh_known_hosts
+</code></pre>
+
+<p>Un ejemplo de configuración:</p>
+
+<pre><code>$ cat /etc/ssh/ssh_known_hosts
+
+81.35.23.24 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHsD76CsmczMi/VAHrHABcd4kEE/iPHFSYgmE72WhrUd+L2BYMhPLqeRZfaIzRon0GbnX3LhSuqzMVbOYXH8oDw=
+</code></pre>
+
+<p>Para ver los hosts sin cifrar:</p>
+
+<pre><code>$ ssh-keyscan -f .ssh/known_hosts
+
+# 79.157.100.207 SSH-2.0-OpenSSH_5.9p1 Debian-5ubuntu1.1
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHsD76CsmczMi/VAHrHABcd4kEE/iPHFSYgmE72WhrUd+L2BYMhPLqeRZfaIzRon0GbnX3LhSuqzMVbOYXH8oDw= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHsD76CsmczMi/VAHrHABcd4kEE/iPHFSYgmE72WhrUd+L2BYMhPLqeRZfaIzRon0GbnX3LhSuqzMVbOYXH8oDw=
+</code></pre>
+
+<ul>
+<li><p>b. Haga una copia remota de un fichero utilizando un algoritmo de cifrado determinado. Analice el proceso que se realiza. </p>
+
+<p>$ scp -c aes256-cbc <de> <a></p></li>
+<li><p>c. Configure su cliente y servidor para permitir conexiones basadas en un esquema de autenticación de usuario de clave pública. </p>
+
+<p>$ cat .ssh/authorized_keys</p>
+
+<p>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDH7vuXWwL91Ny+arAg1QC/Zj++xjUb3LvGnVlT8djxu4SzzBHMmCnIt3VILCqLoAefv8E5d+cH7SZM1v/TDmpudDB7J2OPEPOf41feIdKKNlPv/Y1GRf01RVDgjWA7RY8NyFFSCVge1nrtWNBAqT79Mlgo8O35V6dOdqb+AxaO1mV/s4k/qu5YrNRc9oxK9baksUoYZdllxa7mkpEsIit0Qvr7eFR1s3X5T8UfUTkHtQ/GB1tbRMBX/45+sA2Wi1DWvHKKB6+SXpfcGenJVRwN1K5pAORMArRwIdKGUwaCqNPCL24Wc3BfibXKDg2BPi6+R8+BLu7kMBMEx1mBD99l rodrigo@hp</p></li>
+<li><p>d. Mediante túneles SSH securice algún servicio no seguro. </p>
+
+<p>$ ssh -f bob@bob.no-ip.biz -L 8080:bob.no-ip.biz:80 -Nv</p></li>
+<li><p>e. Securice su sevidor considerando que únicamente dará servicio ssh para sesiones de usuario desde determinadas IPs. </p>
+
+<p>ufw default deny
+ufw allow from 10.10.102.XXX to any port 22</p></li>
+<li><p>Tomando como base de trabajo el servidor Apache2</p></li>
+<li><p>a. Configure una Autoridad Certificadora en su equipo.</p></li>
+</ul>
+
+<p>Para comenzar con los certificados hacen falta comprender algunos conceptos:</p>
+
+<pre><code>CA o autoridad certificadora
+Clave pública de la CA
+Clave privada de la CA
+
+Petición para ser firmada (req)
+Key de la peticion
+Certificado firmado por la CA
+</code></pre>
+
+<p>Primero crearemos una carpeta donde colocar todo lo relativo a los certificados</p>
+
+<pre><code>$ mkdir ssl
+$ cd ssl
+$ mkdir certs private
+</code></pre>
+
+<p>Ahora vamos a necesitar crear algunos ficheros y un archivo de configuración:</p>
+
+<pre><code>openssl.cnf
+
+$ touch index.txt
+$ echo 100001 &gt; serial
+</code></pre>
+
+<p>Creamos la CA (en este caso sin clave con -nodes , sin DES):</p>
+
+<pre><code>$ openssl req -new -x509 -extensions v3_ca -nodes -keyout private/cakey.pem -out cacert.pem -days 3650 -config openssl.cnf
+Generating a 1024 bit RSA private key
+.................................................++++++
+.....................++++++
+writing new private key to 'private/cakey.pem'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [ES]:
+State or Province Name (full name) [España]:
+Locality Name (eg, city) [A Coruña]:
+Organization Name (eg, company) [Arch]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:Rodrigo
+Email Address [rodarima@gmail.com]:
+</code></pre>
+
+<p>Ahora podemos mostrar tanto el certificado de la CA:</p>
+
+<pre><code>$ openssl x509 -in cacert.pem -noout -text
+
+Certificate:
+    Data:
+    Version: 3 (0x2)
+    Serial Number: 18332681048265695763 (0xfe6ac4485e69a213)
+    Signature Algorithm: sha1WithRSAEncryption
+    Issuer: C=ES, ST=Espa\xC3\x83\xC2\xB1a, L=A Coru\xC3\x83\xC2\xB1a, O=Arch, CN=Rodrigo/emailAddress=rodarima@gmail.com
+    Validity
+        Not Before: Dec 16 23:49:25 2013 GMT
+        Not After : Dec 14 23:49:25 2023 GMT
+    Subject: C=ES, ST=Espa\xC3\x83\xC2\xB1a, L=A Coru\xC3\x83\xC2\xB1a, O=Arch, CN=Rodrigo/emailAddress=rodarima@gmail.com
+    Subject Public Key Info:
+        Public Key Algorithm: rsaEncryption
+        Public-Key: (1024 bit)
+        Modulus:
+            00:be:2c:35:24:d7:be:69:3d:df:3a:62:e4:40:b2:
+            98:1b:3e:22:78:c2:07:4d:85:9e:cc:64:ff:1d:9e:
+            34:b3:cf:71:fc:e7:66:9a:01:c0:11:0f:1e:01:a9:
+            01:3c:39:cf:d4:8f:f0:db:70:af:ec:a6:49:31:08:
+            ce:cb:5c:36:28:08:97:5e:ca:36:5b:f2:42:45:db:
+            02:6a:ca:68:93:6b:b4:3e:85:21:bf:b0:6b:c3:6f:
+            46:35:66:f5:3a:26:60:dd:30:f0:c5:87:fc:da:a5:
+            42:6c:75:7f:80:c0:97:6b:75:64:f6:d7:e4:d9:c9:
+            8c:4d:7e:98:23:8f:b4:bf:3d
+        Exponent: 65537 (0x10001)
+    X509v3 extensions:
+        X509v3 Subject Key Identifier: 
+        E4:52:D2:FB:67:E0:14:6F:D7:7E:2E:21:F7:17:D6:11:EA:D6:2B:C4
+        X509v3 Authority Key Identifier: 
+        keyid:E4:52:D2:FB:67:E0:14:6F:D7:7E:2E:21:F7:17:D6:11:EA:D6:2B:C4
+
+        X509v3 Basic Constraints: 
+        CA:TRUE
+    Signature Algorithm: sha1WithRSAEncryption
+     06:c2:e2:be:0b:d5:a2:81:1c:1f:71:ea:70:bb:c7:3c:67:3e:
+     e5:ed:67:79:34:87:5d:78:cc:fb:ab:b2:f1:79:5c:9f:97:d4:
+     19:d4:ff:33:6b:fd:1d:50:70:25:f1:cd:d7:af:5d:31:bf:82:
+     22:56:82:b6:85:43:a9:26:3f:74:3c:d5:ee:e1:e1:80:68:3c:
+     11:69:9a:4f:5a:ba:25:5e:3a:67:d5:69:4f:d1:7c:51:eb:8d:
+     a3:6c:12:92:c5:b1:da:11:cc:d6:02:5e:d4:90:f5:11:00:cb:
+     e8:0d:c5:8a:6b:98:60:b2:52:0c:b7:24:d4:76:f5:e2:82:35:
+     e5:51
+</code></pre>
+
+<p>Como la clave privada y sus valores:</p>
+
+<pre><code>$ openssl rsa -in private/cakey.pem -noout -text
+Private-Key: (1024 bit)
+modulus:
+    00:be:2c:35:24:d7:be:69:3d:df:3a:62:e4:40:b2:
+    98:1b:3e:22:78:c2:07:4d:85:9e:cc:64:ff:1d:9e:
+    34:b3:cf:71:fc:e7:66:9a:01:c0:11:0f:1e:01:a9:
+    01:3c:39:cf:d4:8f:f0:db:70:af:ec:a6:49:31:08:
+    ce:cb:5c:36:28:08:97:5e:ca:36:5b:f2:42:45:db:
+    02:6a:ca:68:93:6b:b4:3e:85:21:bf:b0:6b:c3:6f:
+    46:35:66:f5:3a:26:60:dd:30:f0:c5:87:fc:da:a5:
+    42:6c:75:7f:80:c0:97:6b:75:64:f6:d7:e4:d9:c9:
+    8c:4d:7e:98:23:8f:b4:bf:3d
+publicExponent: 65537 (0x10001)
+privateExponent:
+    68:f6:65:6e:ac:55:40:29:12:28:5b:a4:b7:c0:db:
+    0b:4e:44:20:7a:97:25:46:76:db:41:73:3d:99:b0:
+    64:fe:3e:5f:e4:28:51:20:5e:2e:0c:35:f7:9c:9c:
+    3d:ed:7a:b4:4b:ae:18:b0:1d:a9:74:2e:39:8e:2e:
+    f5:37:33:fb:f8:a0:60:62:c1:b3:96:9d:01:32:1e:
+    30:96:c8:4e:92:f8:e7:83:dc:b3:f9:81:7c:d8:74:
+    dd:53:09:12:bf:aa:cb:87:00:da:f1:c2:09:38:d9:
+    dd:14:67:34:87:bb:01:4c:c0:da:6e:f2:8b:a1:22:
+    07:de:c8:04:b2:c4:58:81
+prime1:
+    00:ea:50:93:61:e0:ed:9d:23:2d:42:d7:36:f1:52:
+    70:15:0d:66:a2:c0:b1:38:da:63:e1:3c:71:87:69:
+    5a:19:66:ae:10:e3:3c:4f:6b:3a:82:6d:8c:1d:03:
+    5b:51:d1:1f:de:fb:18:bb:a2:e2:27:91:5e:3f:97:
+    68:dc:21:13:85
+prime2:
+    00:cf:c5:cf:8b:fd:0f:b8:91:44:b4:d2:6f:1e:dc:
+    be:e7:0f:83:58:fe:3a:f4:16:f2:9b:79:10:73:46:
+    6b:8d:9a:72:b6:fe:a8:ef:e4:68:a8:6d:d8:75:ab:
+    71:bb:c7:64:5c:1c:14:68:a8:42:2c:50:c2:cb:80:
+    8c:89:ab:fe:59
+exponent1:
+    77:7e:6c:0b:08:78:65:20:a1:5e:6a:fe:dc:06:dc:
+    9d:ff:dd:8d:b6:93:2a:99:45:42:82:5e:ab:5d:f0:
+    d2:ef:68:69:b8:58:f3:6f:8d:c1:22:38:c8:3b:04:
+    01:2f:92:ff:56:32:80:ce:4a:63:3f:61:3f:30:ea:
+    0b:08:db:39
+exponent2:
+    00:97:52:77:55:7a:6a:9f:be:d5:6e:68:b0:db:a6:
+    64:37:3e:da:27:cf:89:3a:4b:18:48:d9:84:7c:a0:
+    76:26:bc:ac:fd:d0:3d:53:f2:63:b2:ff:c5:9d:f5:
+    ce:b0:b7:88:c5:79:01:f8:33:4b:76:a1:1f:2e:3d:
+    a2:9d:86:31:89
+coefficient:
+    6b:64:aa:d2:a0:24:04:0f:d7:03:90:b2:e7:db:02:
+    11:38:28:47:8d:4c:d8:a5:fa:0b:0b:02:1c:88:73:
+    c1:05:58:a7:3e:96:8a:16:cc:c1:b7:0b:6e:18:a5:
+    a1:05:ae:bc:a9:2c:6b:8b:49:db:cb:f8:c5:5c:34:
+    00:36:64:19
+</code></pre>
+
+<p>Para crear una petición de certificado usamos:</p>
+
+<pre><code>$ openssl req -new -text -nodes -out ejemplo.csr -keyout ejemplo.key -config openssl.cnf 
+
+Generating a 1024 bit RSA private key
+.......++++++
+...................................++++++
+writing new private key to 'ejemplo.key'
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [ES]:
+State or Province Name (full name) [España]:
+Locality Name (eg, city) [A Coruña]:
+Organization Name (eg, company) [Arch]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:Ejemplo
+Email Address [rodarima@gmail.com]:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+</code></pre>
+
+<p>Esto crea los ficheros <code>ejemplo.csr</code> y <code>ejemplo.key</code>, que contienen respectivamente la petición con los datos de la entidad que solicita el certificado, y la clave que se usará para el firmado.</p>
+
+<pre><code>$ openssl req -in ejemplo.csr -text -noout
+
+Certificate Request:
+    Data:
+    Version: 0 (0x0)
+    Subject: C=ES, ST=Espa\xC3\x83\xC2\xB1a, L=A Coru\xC3\x83\xC2\xB1a, O=Arch, CN=Ejemplo/emailAddress=rodarima@gmail.com
+    Subject Public Key Info:
+        Public Key Algorithm: rsaEncryption
+        Public-Key: (1024 bit)
+        Modulus:
+            00:d1:41:5f:4c:1c:31:52:4e:30:e4:f7:f1:1d:6a:
+            13:25:45:0e:b8:e8:06:16:91:71:76:3b:5d:51:a6:
+            5e:9c:3f:3f:f7:0c:3a:a1:cd:b3:dd:55:eb:ba:9b:
+            f3:93:ce:10:e6:76:74:21:a8:df:77:81:18:09:7e:
+            f0:fd:6d:6e:30:6e:86:2d:37:b2:39:d5:28:dc:c0:
+            52:49:41:2b:25:cb:1f:e7:0a:69:3a:a1:40:ae:54:
+            e3:bd:5e:38:b9:76:93:60:96:50:bd:d1:16:82:0b:
+            97:ae:56:f6:e7:38:e9:7d:c2:c2:0e:ba:67:aa:ca:
+            3b:37:cd:33:f0:08:b4:ba:15
+        Exponent: 65537 (0x10001)
+    Attributes:
+        a0:00
+    Signature Algorithm: sha1WithRSAEncryption
+     69:22:80:41:2d:29:0b:3b:9a:c6:da:4e:41:e4:7d:e8:d6:fe:
+     86:8c:d4:fd:a2:ea:60:39:ff:40:46:55:05:3b:fa:14:11:9f:
+     40:89:80:3c:06:41:e4:f2:0c:11:ba:5f:96:dd:16:82:a1:75:
+     e4:b3:4a:9c:7c:df:fd:11:2f:94:be:20:87:d3:aa:55:d6:59:
+     f2:64:67:0b:30:a9:2b:de:e7:75:a0:a9:60:3b:94:a6:6e:4f:
+     11:e8:55:42:9f:4c:0d:46:0c:1f:45:98:0d:a2:b8:84:56:b9:
+     a4:66:6f:fc:36:85:8b:64:fb:00:7c:1c:35:ae:7c:f1:79:99:
+     d2:7a
+</code></pre>
+
+<p>La clave privada:</p>
+
+<pre><code>$ openssl rsa -in ejemplo.key  -noout -text
+
+Private-Key: (1024 bit)
+modulus:
+    00:d1:41:5f:4c:1c:31:52:4e:30:e4:f7:f1:1d:6a:
+    13:25:45:0e:b8:e8:06:16:91:71:76:3b:5d:51:a6:
+    5e:9c:3f:3f:f7:0c:3a:a1:cd:b3:dd:55:eb:ba:9b:
+    f3:93:ce:10:e6:76:74:21:a8:df:77:81:18:09:7e:
+    f0:fd:6d:6e:30:6e:86:2d:37:b2:39:d5:28:dc:c0:
+    52:49:41:2b:25:cb:1f:e7:0a:69:3a:a1:40:ae:54:
+    e3:bd:5e:38:b9:76:93:60:96:50:bd:d1:16:82:0b:
+    97:ae:56:f6:e7:38:e9:7d:c2:c2:0e:ba:67:aa:ca:
+    3b:37:cd:33:f0:08:b4:ba:15
+publicExponent: 65537 (0x10001)
+privateExponent:
+    00:9e:ea:61:a0:20:8d:08:6f:9f:4c:54:4c:05:c5:
+    a8:12:96:d6:6e:70:af:26:f6:7f:cf:85:98:02:49:
+    31:f2:c1:4a:27:a9:5e:e1:c0:a1:87:47:18:45:d8:
+    e7:eb:e9:04:06:b2:10:d1:fb:38:f2:bd:d4:6e:69:
+    bc:45:0a:95:31:cb:c4:fd:44:d5:f3:a1:23:c7:2d:
+    2f:ab:d4:0b:2d:bd:a6:9f:23:53:03:a7:c1:e8:1e:
+    7c:09:6b:28:19:6b:62:de:25:da:3e:d0:2a:7a:7d:
+    09:0d:fd:ee:ef:d8:53:6f:65:9e:49:3b:33:5d:bd:
+    5e:f2:ee:15:77:d1:bb:9f:25
+prime1:
+    00:fd:be:61:7b:03:00:79:b2:d8:ba:fc:a8:ed:36:
+    e0:9a:8e:d0:9a:a9:3c:0d:12:79:bc:2c:07:b4:d1:
+    94:7b:16:a2:f9:78:03:9b:f9:1d:c8:b5:fa:b8:74:
+    8f:ca:15:26:19:cb:ee:be:90:0b:05:7b:b5:c1:3d:
+    99:74:eb:42:9b
+prime2:
+    00:d3:1d:b8:01:db:e9:fd:e0:84:3e:a9:03:78:b3:
+    20:d3:5d:16:5d:62:fe:6f:9c:af:3f:70:a9:82:fb:
+    a6:c4:6b:3a:b0:a4:62:13:5d:ce:62:b8:fd:80:55:
+    0f:0d:2a:d3:df:1a:a9:0f:ec:bf:be:04:4a:8e:cf:
+    f3:cb:53:29:0f
+exponent1:
+    1e:1b:58:b5:9f:c5:8e:ab:09:cc:25:ee:65:36:fd:
+    af:59:02:a7:57:2d:28:df:e8:51:cb:67:9e:ac:bf:
+    51:5b:7e:3a:db:62:92:3f:1c:a9:93:ee:0b:b4:c8:
+    da:d1:67:93:e7:fe:8b:dd:cb:70:fb:1c:b5:b0:f9:
+    64:46:05:c1
+exponent2:
+    12:85:ca:fd:2e:c4:4a:e8:05:f2:51:75:e2:83:24:
+    e0:26:8c:ad:c8:df:b5:ff:33:49:07:a3:77:c0:88:
+    93:37:2d:41:0e:4b:24:93:d8:65:c5:01:48:df:2d:
+    a0:e4:1f:0e:b6:12:1b:39:94:61:21:93:41:10:71:
+    bd:67:20:75
+coefficient:
+    00:d7:60:da:f2:5d:38:a0:eb:e2:b0:aa:06:90:21:
+    d9:fa:0f:95:3b:36:17:0c:3a:36:ad:19:82:03:3b:
+    35:b9:8a:fb:a8:f7:23:82:e9:cc:be:5b:27:70:60:
+    f6:77:71:87:b8:96:24:1c:8d:50:5e:d5:51:cc:0c:
+    ee:3b:06:93:a7
+</code></pre>
+
+<p>Para firmar el certificado, usaremos:</p>
+
+<pre><code>$ openssl ca -in ejemplo.csr -out ejemplo-firmado.pem -keyfile private/cakey.pem -cert cacert.pem -config openssl.cnf 
+
+Using configuration from openssl.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+    Serial Number: 1048577 (0x100001)
+    Validity
+        Not Before: Dec 17 01:18:25 2013 GMT
+        Not After : Dec 17 01:18:25 2014 GMT
+    Subject:
+        countryName               = ES
+        stateOrProvinceName       = Espa\C3\B1a
+        organizationName          = Arch
+        commonName                = Ejemplo
+        emailAddress              = rodarima@gmail.com
+    X509v3 extensions:
+        X509v3 Basic Constraints: 
+        CA:FALSE
+        Netscape Comment: 
+        OpenSSL Generated Certificate
+        X509v3 Subject Key Identifier: 
+        5D:B8:CF:0E:D0:B1:EC:ED:74:43:2D:80:71:68:8A:EA:3E:0D:7D:BC
+        X509v3 Authority Key Identifier: 
+        keyid:E4:52:D2:FB:67:E0:14:6F:D7:7E:2E:21:F7:17:D6:11:EA:D6:2B:C4
+
+Certificate is to be certified until Dec 17 01:18:25 2014 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+</code></pre>
+
+<p>Ahora podemos observar que esta firmado:</p>
+
+<pre><code>openssl x509 -in ejemplo-firmado.pem  -text -noout
+Certificate:
+    Data:
+    Version: 3 (0x2)
+    Serial Number: 1048577 (0x100001)
+    Signature Algorithm: sha1WithRSAEncryption
+    Issuer: C=ES, ST=Espa\xC3\x83\xC2\xB1a, L=A Coru\xC3\x83\xC2\xB1a, O=Arch, CN=Rodrigo/emailAddress=rodarima@gmail.com
+    Validity
+        Not Before: Dec 17 01:18:25 2013 GMT
+        Not After : Dec 17 01:18:25 2014 GMT
+    Subject: C=ES, ST=Espa\xC3\x83\xC2\xB1a, O=Arch, CN=Ejemplo/emailAddress=rodarima@gmail.com
+    Subject Public Key Info:
+        Public Key Algorithm: rsaEncryption
+        Public-Key: (1024 bit)
+        Modulus:
+            00:d1:41:5f:4c:1c:31:52:4e:30:e4:f7:f1:1d:6a:
+            13:25:45:0e:b8:e8:06:16:91:71:76:3b:5d:51:a6:
+            5e:9c:3f:3f:f7:0c:3a:a1:cd:b3:dd:55:eb:ba:9b:
+            f3:93:ce:10:e6:76:74:21:a8:df:77:81:18:09:7e:
+            f0:fd:6d:6e:30:6e:86:2d:37:b2:39:d5:28:dc:c0:
+            52:49:41:2b:25:cb:1f:e7:0a:69:3a:a1:40:ae:54:
+            e3:bd:5e:38:b9:76:93:60:96:50:bd:d1:16:82:0b:
+            97:ae:56:f6:e7:38:e9:7d:c2:c2:0e:ba:67:aa:ca:
+            3b:37:cd:33:f0:08:b4:ba:15
+        Exponent: 65537 (0x10001)
+    X509v3 extensions:
+        X509v3 Basic Constraints: 
+        CA:FALSE
+        Netscape Comment: 
+        OpenSSL Generated Certificate
+        X509v3 Subject Key Identifier: 
+        5D:B8:CF:0E:D0:B1:EC:ED:74:43:2D:80:71:68:8A:EA:3E:0D:7D:BC
+        X509v3 Authority Key Identifier: 
+        keyid:E4:52:D2:FB:67:E0:14:6F:D7:7E:2E:21:F7:17:D6:11:EA:D6:2B:C4
+
+    Signature Algorithm: sha1WithRSAEncryption
+     4d:84:0e:e8:15:d9:fa:96:24:7e:d4:d8:e5:68:3f:dc:40:ea:
+     3c:1c:17:f5:81:f8:f6:d9:6e:f0:9e:d0:12:3e:7e:b5:24:77:
+     4d:b5:e1:c8:1a:82:33:65:fc:98:ec:f8:f4:54:ba:8f:1d:1c:
+     09:8d:d4:b5:56:11:92:1b:61:36:af:c0:f9:13:6b:20:2f:82:
+     b6:e0:e3:5b:a4:e9:72:69:3b:fa:06:9f:07:81:75:03:e6:4c:
+     55:c9:b3:0c:ec:56:65:b0:1e:b5:65:24:ab:44:46:6d:0f:86:
+     08:9f:9b:5c:07:23:b9:23:f4:f3:93:5e:8d:1c:90:a3:9e:db:
+     11:65
+</code></pre>
+
+<p>Comprobamos que realmente esta firmado correctamente:</p>
+
+<pre><code>$ openssl verify -CAfile cacert.pem ejemplo-firmado.pem 
+
+ejemplo-firmado.pem: OK
+</code></pre>
+
+<p>También vamos a extraer sólo el certificado de <code>ejemplo-firmado.pem</code>:</p>
+
+<pre><code>$ openssl x509 -in ejemplo-firmado.pem -out ejemplo-firmado-solo.pem
+
+$ cat ejemplo-firmado-solo.pem 
+-----BEGIN CERTIFICATE-----
+MIIC0zCCAjygAwIBAgIDEAABMA0GCSqGSIb3DQEBBQUAMHsxCzAJBgNVBAYTAkVT
+MRIwEAYDVQQIDAlFc3Bhw4PCsWExFDASBgNVBAcMC0EgQ29ydcODwrFhMQ0wCwYD
+VQQKDARBcmNoMRAwDgYDVQQDDAdSb2RyaWdvMSEwHwYJKoZIhvcNAQkBFhJyb2Rh
+cmltYUBnbWFpbC5jb20wHhcNMTMxMjE3MDExODI1WhcNMTQxMjE3MDExODI1WjBl
+MQswCQYDVQQGEwJFUzESMBAGA1UECAwJRXNwYcODwrFhMQ0wCwYDVQQKDARBcmNo
+MRAwDgYDVQQDDAdFamVtcGxvMSEwHwYJKoZIhvcNAQkBFhJyb2RhcmltYUBnbWFp
+bC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANFBX0wcMVJOMOT38R1q
+EyVFDrjoBhaRcXY7XVGmXpw/P/cMOqHNs91V67qb85POEOZ2dCGo33eBGAl+8P1t
+bjBuhi03sjnVKNzAUklBKyXLH+cKaTqhQK5U471eOLl2k2CWUL3RFoILl65W9uc4
+6X3Cwg66Z6rKOzfNM/AItLoVAgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJYIZIAYb4
+QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQWBBRd
+uM8O0LHs7XRDLYBxaIrqPg19vDAfBgNVHSMEGDAWgBTkUtL7Z+AUb9d+LiH3F9YR
+6tYrxDANBgkqhkiG9w0BAQUFAAOBgQBNhA7oFdn6liR+1NjlaD/cQOo8HBf1gfj2
+2W7wntASPn61JHdNteHIGoIzZfyY7Pj0VLqPHRwJjdS1VhGSG2E2r8D5E2sgL4K2
+4ONbpOlyaTv6Bp8HgXUD5kxVybMM7FZlsB61ZSSrREZtD4YIn5tcByO5I/Tzk16N
+HJCjntsRZQ==
+-----END CERTIFICATE-----
+</code></pre>
+
+<p>Volvemos a comprobarlo:</p>
+
+<pre><code>$ openssl verify -CAfile cacert.pem ejemplo-firmado-solo.pem  
+ejemplo-firmado-solo.pem: OK
+</code></pre>
+
+<p>Ya tenemos todo preparado para montarlo en el servidor apache:</p>
+
+<pre><code>.
+├── cacert.pem            Certificado de la CA
+├── ejemplo.csr           Request de ejemplo
+├── ejemplo-firmado.pem       Certificado firmado por la CA
+├── ejemplo-firmado-solo.pem  Sólo el certificado
+├── ejemplo.key           Clave de la request
+├── index.txt         Nº de firmas
+├── index.txt.attr        *
+├── index.txt.old     *
+├── openssl.cnf           Configuración
+├── private
+│   └── cakey.pem     !! Clave de la CA, usar con cautela
+├── serial            *
+└── serial.old            *
+</code></pre>
+
+<p>La configuración de apache</p>
+
+<p>Incluimos el fichero de configuracion de ssl:</p>
+
+<pre><code>/etc/httpd/conf/httpd.conf:
+...
+Include conf/extra/httpd-ssl.conf
+...
+</code></pre>
+
+<p>Para <code>/etc/httpd/conf/extra/httpd-ssl.conf</code>:</p>
+
+<pre><code>$ cat /etc/httpd/conf/extra/httpd-ssl.conf 
+
+#
+# This is the Apache server configuration file providing SSL support.
+# It contains the configuration directives to instruct the server how to
+# serve pages over an https connection. For detailed information about these 
+# directives see &lt;URL:http://httpd.apache.org/docs/2.2/mod/mod_ssl.html&gt;
+# 
+# Do NOT simply read the instructions in here without understanding
+# what they do.  They're here only as hints or reminders.  If you are unsure
+# consult the online docs. You have been warned.  
+#
+
+#
+# Pseudo Random Number Generator (PRNG):
+# Configure one or more sources to seed the PRNG of the SSL library.
+# The seed data should be of good random quality.
+# WARNING! On some platforms /dev/random blocks if not enough entropy
+# is available. This means you then cannot use the /dev/random device
+# because it would lead to very long connection times (as long as
+# it requires to make more entropy available). But usually those
+# platforms additionally provide a /dev/urandom device which doesn't
+# block. So, if available, use this one instead. Read the mod_ssl User
+# Manual for more details.
+#
+#SSLRandomSeed startup file:/dev/random  512
+#SSLRandomSeed startup file:/dev/urandom 512
+#SSLRandomSeed connect file:/dev/random  512
+#SSLRandomSeed connect file:/dev/urandom 512
+
+
+#
+# When we also provide SSL we have to listen to the 
+# standard HTTP port (see above) and to the HTTPS port
+#
+# Note: Configurations that use IPv6 but not IPv4-mapped addresses need two
+#       Listen directives: "Listen [::]:443" and "Listen 0.0.0.0:443"
+#
+Listen 443
+
+##
+##  SSL Global Context
+##
+##  All SSL configuration in this context applies both to
+##  the main server and all SSL-enabled virtual hosts.
+##
+
+#
+#   Some MIME-types for downloading Certificates and CRLs
+#
+AddType application/x-x509-ca-cert .crt
+AddType application/x-pkcs7-crl    .crl
+
+#   Pass Phrase Dialog:
+#   Configure the pass phrase gathering process.
+#   The filtering dialog program (`builtin' is a internal
+#   terminal dialog) has to provide the pass phrase on stdout.
+SSLPassPhraseDialog  builtin
+
+#   Inter-Process Session Cache:
+#   Configure the SSL Session Cache: First the mechanism 
+#   to use and second the expiring timeout (in seconds).
+#SSLSessionCache         "dbm:/run/httpd/ssl_scache"
+SSLSessionCache        "shmcb:/run/httpd/ssl_scache(512000)"
+SSLSessionCacheTimeout  300
+
+#   Semaphore:
+#   Configure the path to the mutual exclusion semaphore the
+#   SSL engine uses internally for inter-process synchronization. 
+SSLMutex  "file:/run/httpd/ssl_mutex"
+
+##
+## SSL Virtual Host Context
+##
+
+&lt;VirtualHost _default_:443&gt;
+#   General setup for the virtual host
+DocumentRoot "/srv/http/"
+ServerName www.example.com:443
+ServerAdmin you@example.com
+ErrorLog "/var/log/httpd/error_log"
+TransferLog "/var/log/httpd/access_log"
+&lt;Directory /srv/http/test&gt;
+        Allow from all
+&lt;/Directory&gt;
+&lt;Directory /srv/http/&gt;
+        Deny from all
+&lt;/Directory&gt;
+
+#   SSL Engine Switch:
+#   Enable/Disable SSL for this virtual host.
+SSLEngine on
+
+#   SSL Protocol support:
+#   List the protocol versions which clients are allowed to
+#   connect with. Disable SSLv2 by default (cf. RFC 6176).
+SSLProtocol all -SSLv2
+
+#   SSL Cipher Suite:
+#   List the ciphers that the client is permitted to negotiate.
+#   See the mod_ssl documentation for a complete list.
+SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5
+
+#   Speed-optimized SSL Cipher configuration:
+#   If speed is your main concern (on busy HTTPS servers e.g.),
+#   you might want to force clients to specific, performance
+#   optimized ciphers. In this case, prepend those ciphers
+#   to the SSLCipherSuite list, and enable SSLHonorCipherOrder.
+#   Caveat: by giving precedence to RC4-SHA and AES128-SHA
+#   (as in the example below), most connections will no longer
+#   have perfect forward secrecy - if the server's key is
+#   compromised, captures of past or future traffic must be
+#   considered compromised, too.
+#SSLCipherSuite RC4-SHA:AES128-SHA:HIGH:MEDIUM:!aNULL:!MD5
+#SSLHonorCipherOrder on 
+
+#   Server Certificate:
+#   Point SSLCertificateFile at a PEM encoded certificate.  If
+#   the certificate is encrypted, then you will be prompted for a
+#   pass phrase.  Note that a kill -HUP will prompt again.  Keep
+#   in mind that if you have both an RSA and a DSA certificate you
+#   can configure both in parallel (to also allow the use of DSA
+#   ciphers, etc.)
+SSLCertificateFile "/etc/httpd/conf/server.crt"
+#SSLCertificateFile "/etc/httpd/conf/server-dsa.crt"
+
+#   Server Private Key:
+#   If the key is not combined with the certificate, use this
+#   directive to point at the key file.  Keep in mind that if
+#   you've both a RSA and a DSA private key you can configure
+#   both in parallel (to also allow the use of DSA ciphers, etc.)
+SSLCertificateKeyFile "/etc/httpd/conf/server.key"
+#SSLCertificateKeyFile "/etc/httpd/conf/server-dsa.key"
+
+#   Server Certificate Chain:
+#   Point SSLCertificateChainFile at a file containing the
+#   concatenation of PEM encoded CA certificates which form the
+#   certificate chain for the server certificate. Alternatively
+#   the referenced file can be the same as SSLCertificateFile
+#   when the CA certificates are directly appended to the server
+#   certificate for convenience.
+#SSLCertificateChainFile "/etc/httpd/conf/server-ca.crt"
+
+#   Certificate Authority (CA):
+#   Set the CA certificate verification path where to find CA
+#   certificates for client authentication or alternatively one
+#   huge file containing all of them (file must be PEM encoded)
+#   Note: Inside SSLCACertificatePath you need hash symlinks
+#         to point to the certificate files. Use the provided
+#         Makefile to update the hash symlinks after changes.
+#SSLCACertificatePath "/etc/httpd/conf/ssl.crt"
+#SSLCACertificateFile "/etc/httpd/conf/ssl.crt/ca-bundle.crt"
+
+#   Certificate Revocation Lists (CRL):
+#   Set the CA revocation path where to find CA CRLs for client
+#   authentication or alternatively one huge file containing all
+#   of them (file must be PEM encoded)
+#   Note: Inside SSLCARevocationPath you need hash symlinks
+#         to point to the certificate files. Use the provided
+#         Makefile to update the hash symlinks after changes.
+#SSLCARevocationPath "/etc/httpd/conf/ssl.crl"
+#SSLCARevocationFile "/etc/httpd/conf/ssl.crl/ca-bundle.crl"
+
+#   Client Authentication (Type):
+#   Client certificate verification type and depth.  Types are
+#   none, optional, require and optional_no_ca.  Depth is a
+#   number which specifies how deeply to verify the certificate
+#   issuer chain before deciding the certificate is not valid.
+#SSLVerifyClient require
+#SSLVerifyDepth  10
+
+#   Access Control:
+#   With SSLRequire you can do per-directory access control based
+#   on arbitrary complex boolean expressions containing server
+#   variable checks and other lookup directives.  The syntax is a
+#   mixture between C and Perl.  See the mod_ssl documentation
+#   for more details.
+#&lt;Location /&gt;
+#SSLRequire (    %{SSL_CIPHER} !~ m/^(EXP|NULL)/ \
+#            and %{SSL_CLIENT_S_DN_O} eq "Snake Oil, Ltd." \
+#            and %{SSL_CLIENT_S_DN_OU} in {"Staff", "CA", "Dev"} \
+#            and %{TIME_WDAY} &gt;= 1 and %{TIME_WDAY} &lt;= 5 \
+#            and %{TIME_HOUR} &gt;= 8 and %{TIME_HOUR} &lt;= 20       ) \
+#           or %{REMOTE_ADDR} =~ m/^192\.76\.162\.[0-9]+$/
+#&lt;/Location&gt;
+
+#   SSL Engine Options:
+#   Set various options for the SSL engine.
+#   o FakeBasicAuth:
+#     Translate the client X.509 into a Basic Authorisation.  This means that
+#     the standard Auth/DBMAuth methods can be used for access control.  The
+#     user name is the `one line' version of the client's X.509 certificate.
+#     Note that no password is obtained from the user. Every entry in the user
+#     file needs this password: `xxj31ZMTZzkVA'.
+#   o ExportCertData:
+#     This exports two additional environment variables: SSL_CLIENT_CERT and
+#     SSL_SERVER_CERT. These contain the PEM-encoded certificates of the
+#     server (always existing) and the client (only existing when client
+#     authentication is used). This can be used to import the certificates
+#     into CGI scripts.
+#   o StdEnvVars:
+#     This exports the standard SSL/TLS related `SSL_*' environment variables.
+#     Per default this exportation is switched off for performance reasons,
+#     because the extraction step is an expensive operation and is usually
+#     useless for serving static content. So one usually enables the
+#     exportation for CGI and SSI requests only.
+#   o StrictRequire:
+#     This denies access when "SSLRequireSSL" or "SSLRequire" applied even
+#     under a "Satisfy any" situation, i.e. when it applies access is denied
+#     and no other module can change it.
+#   o OptRenegotiate:
+#     This enables optimized SSL connection renegotiation handling when SSL
+#     directives are used in per-directory context. 
+#SSLOptions +FakeBasicAuth +ExportCertData +StrictRequire
+&lt;FilesMatch "\.(cgi|shtml|phtml|php)$"&gt;
+    SSLOptions +StdEnvVars
+&lt;/FilesMatch&gt;
+&lt;Directory "/srv/http/cgi-bin"&gt;
+    SSLOptions +StdEnvVars
+&lt;/Directory&gt;
+
+#   SSL Protocol Adjustments:
+#   The safe and default but still SSL/TLS standard compliant shutdown
+#   approach is that mod_ssl sends the close notify alert but doesn't wait for
+#   the close notify alert from client. When you need a different shutdown
+#   approach you can use one of the following variables:
+#   o ssl-unclean-shutdown:
+#     This forces an unclean shutdown when the connection is closed, i.e. no
+#     SSL close notify alert is sent or allowed to be received.  This violates
+#     the SSL/TLS standard but is needed for some brain-dead browsers. Use
+#     this when you receive I/O errors because of the standard approach where
+#     mod_ssl sends the close notify alert.
+#   o ssl-accurate-shutdown:
+#     This forces an accurate shutdown when the connection is closed, i.e. a
+#     SSL close notify alert is send and mod_ssl waits for the close notify
+#     alert of the client. This is 100% SSL/TLS standard compliant, but in
+#     practice often causes hanging connections with brain-dead browsers. Use
+#     this only for browsers where you know that their SSL implementation
+#     works correctly. 
+#   Notice: Most problems of broken clients are also related to the HTTP
+#   keep-alive facility, so you usually additionally want to disable
+#   keep-alive for those clients, too. Use variable "nokeepalive" for this.
+#   Similarly, one has to force some clients to use HTTP/1.0 to workaround
+#   their broken HTTP/1.1 implementation. Use variables "downgrade-1.0" and
+#   "force-response-1.0" for this.
+BrowserMatch "MSIE [2-5]" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+
+#   Per-Server Logging:
+#   The home of a custom SSL log file. Use this when you want a
+#   compact non-error SSL logfile on a virtual host basis.
+CustomLog "/var/log/httpd/ssl_request_log" \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<p>| 0 | O </p>
+        </div>
+    </body>
+</html>
